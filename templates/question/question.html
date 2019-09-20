@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}
+<h1>Stackoverflow.com</h1>
+{% if request.user.is_authenticated %}
+<h2>Welcome {{ request.user }}!</h2>
+{% else%}
+<h2>Welcome User !</h2>
+{% endif %}
+{% endblock %}
+
+
+{% block content %}
+<div class="navbar">
+    <a href = "{% url 'dashboard_home' %}">Questions</a>
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'dashboard_login_home' %}">Home</a>
+        <a href="{% url 'ask_question' %}">Ask Question</a>
+        <a href="{% url 'dashboard_logout' %}">LOGOUT</a>
+        {% else %}
+        <a href="{% url 'dashboard_login' %}">LOGIN</a>
+    {% endif%}
+</div>
+
+
+
+<h1> Question </h1>
+
+<div>
+    <h1>Title: {{ Object.question.title }} </h1>
+    <h2>Description: {{ Object.question.text }} </h2>
+</div>
+
+<div>
+    <form method="post" action="{% url 'add_vote' id=id%}">
+        <input type="hidden" name="type" value="question">
+        <input type="hidden" name="id" value="{{ id }}">
+        <ul class="nav">
+        <li>
+            <p align="center">{{ Object.vote }}</p>
+            <button class="button1" type="submit"  name="upvote" >UpVote</button>
+        </li>
+        <li>
+            <button class="button1" type="submit" name="downvote" >DownVote</button>
+         </li>
+        </ul>
+        {% csrf_token %}
+    </form>
+</div>
+
+{% for comment in Object.comments  %}
+        {% if comment.comment %}
+             <h2>{{ comment.comment.text }}</h2>
+                <form method="post" action="{% url 'add_vote' id=comment.comment.id %}">
+                    <input type="hidden" name="type" value="comment">
+                    <input type="hidden" name="id" value="{{ id }}">
+                    <ul class="nav">
+        <li>
+            <p align="center">{{ comment.vote }}</p>
+             <button class="button1" type="submit"  name="upvote" >UpVote</button>
+        </li>
+        <li>
+            <button class="button1" type="submit" name="downvote" >DownVote</button>
+         </li>
+        </ul>
+                    {% csrf_token %}
+                </form>
+        {% else %}
+                <p> No comments here yet :(</p>
+        {% endif %}
+        {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'add_comment' id=id%}">
+                <input type="hidden" name="type" value="question">
+                <input type="hidden" name="id" value="{{ id }}">
+                <textarea rows = "5" cols = "50" name = "comment" placeholder="Add Your Comment Here"></textarea> <br><br>
+                       <button class="button1" type="submit"> Add Comment </button>
+                {% csrf_token %}
+            </form>
+        {% endif %}
+
+{% endfor  %}
+
+{% if Object.answers %}
+
+    <h1>Answers</h1>
+
+    {% for answer in Object.answers %}
+
+        <h2>{{ answer.answer.text }}</h2>
+
+            <form method="post" action="{% url 'add_vote' id=answer.answer.id%}">
+                <input type="hidden" name="type" value="answer">
+                <input type="hidden" name="id" value="{{ id }}">
+                <ul class="nav">
+        <li>
+            <p align="center">{{ answer.vote }}</p>
+
+            <button class="button1" type="submit" name="upvote" >UpVote</button>
+        </li>
+        <li>
+            <button class="button1" type="submit" name="downvote" >DownVote</button>
+         </li>
+        </ul>
+                {% csrf_token %}
+            </form>
+<div style="margin-left: 150px; background: none" >
+        {% for item in answer.comments  %}
+            {% for comment in item %}
+                {% if comment.comment %}
+
+                     <h2 >{{ comment.comment.text }}</h2>
+                        <form method="post" action="{% url 'add_vote' id=comment.comment.id%}">
+                            <input type="hidden" name="type" value="comment">
+                            <input type="hidden" name="id" value="{{ id }}">
+                            <ul class="nav">
+        <li>
+            <p align="center">{{ comment.vote }}</p>
+            <button class="button1" type="submit" name="upvote" >UpVote</button>
+        </li>
+        <li>
+            <button class="button1" type="submit" name="downvote" >DownVote</button>
+         </li>
+        </ul>
+                            {% csrf_token %}
+                        </form>
+                   {% else %}
+                         <p> No comments here yet :(</p>
+                   {% endif %}
+            {% endfor  %}
+
+
+            {% if request.user.is_authenticated %}
+                   <form method="post" action="{% url 'add_comment' id=answer.answer.id%}">
+                        <input type="hidden" name="type" value="answer">
+                         <input type="hidden" name="id" value="{{ id }}">
+                         <textarea rows = "5" cols = "50" name = "comment" placeholder="Add Your Comment Here"></textarea>    <br><br>
+                       <button class="button1" type="submit"> Add Comment </button>
+                          {% csrf_token %}
+                   </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+    {% endfor %}
+
+{% else %}
+
+      <p> No answers here yet :(</p>
+
+{% endif %}
+{% if request.user.is_authenticated %}
+<form method="post" action="{% url 'add_answer' id=id%}">
+    <textarea rows = "5" cols = "50" name = "answer" placeholder="Enter your Answer here"></textarea>
+    <br><br>
+    <button class="button" type="submit"> Add a Answer </button>
+    {% csrf_token %}
+</form>
+{% endif %}
+
+{% endblock %}

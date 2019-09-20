@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="navbar">
+    <a href = "{% url 'dashboard_home' %}">Questions</a>
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'dashboard_login_home' %}">Home</a>
+        <a href="{% url 'ask_question' %}">Ask Question</a>
+        <a href="{% url 'dashboard_logout' %}">LOGOUT</a>
+        {% else %}
+        <a href="{% url 'dashboard_login' %}">LOGIN</a>
+    {% endif%}
+</div>
+
+<h1>Ask your Question</h1>
+
+    <form method="post" action="{% url 'ask_question' %}">
+
+        <textarea rows = "5" cols = "50" name = "title" placeholder="Enter title here"></textarea>
+        <br><br>
+        <textarea rows = "10" cols = "50" name = "text" placeholder="Enter description of your question"></textarea>
+        <br><br>
+        <button type="submit">Submit Your Question</button>
+        {% csrf_token %}
+
+    </form>
+{% endblock %}
